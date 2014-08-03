@@ -67,6 +67,7 @@ public class NativeCameraLauncher extends CordovaPlugin {
 	private int mQuality;
 	private int targetWidth;
 	private int targetHeight;
+	private int destinationType;
 	private Uri imageUri;
 	private File photo;
 	private int numPics;
@@ -92,6 +93,7 @@ public class NativeCameraLauncher extends CordovaPlugin {
 				this.mQuality = 80;
 				this.targetHeight = args.getInt(4);
 				this.targetWidth = args.getInt(3);
+				this.destinationType = args.getInt(1);
 				this.mQuality = args.getInt(0);
 				this.takePicture();
 				PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT);
@@ -200,7 +202,19 @@ public class NativeCameraLauncher extends CordovaPlugin {
 				exif.writeExifData();
 
 				// Send Uri back to JavaScript for viewing image
-				this.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, uri.toString()));
+				//this.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, uri.toString()));
+
+				android.util.Log.i("CameraPlugin", "destinationType: " + this.destinationType);
+				if (this.destinationType == 1) { //File URI
+					// Send Uri back to JavaScript for viewing image
+					this.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, uri.toString()));
+				} else if (this.destinationType == 0) { //DATA URL
+					String base64Data = NativeCameraLauncher.encodeTobase64(bitmap, this.mQuality);
+					this.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, base64Data));
+				}
+				else {
+					this.failPicture("Unsupported destination");
+				}
 
 				bitmap.recycle();
 				bitmap = null;
@@ -223,7 +237,14 @@ public class NativeCameraLauncher extends CordovaPlugin {
 			this.failPicture("Did not complete!");
 		}
 	}
-
+	public static String encodeTobase64(Bitmap image, int quality)
+	{
+	    ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+	    image.compress(Bitmap.CompressFormat.JPEG, quality, baos);
+	    byte[] b = baos.toByteArray();
+	    String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
+	    return imageEncoded;
+	}
 	public Bitmap scaleBitmap(Bitmap bitmap) {
 		int newWidth = this.targetWidth;
 		int newHeight = this.targetHeight;
