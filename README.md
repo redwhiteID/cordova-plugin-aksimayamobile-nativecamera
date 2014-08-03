@@ -1,4 +1,4 @@
-com.wezka.nativecamera
+com.aksimayamobile.nativecamera
 ==========================
 
 This is a fork of the official camera plugin from Apache - JUST FOR ANDROID

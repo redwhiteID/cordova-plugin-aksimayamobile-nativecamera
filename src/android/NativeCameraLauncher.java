@@ -14,7 +14,7 @@
    		limitations under the License.   			
  */
 
-package com.wezka.nativecamera;
+package com.aksimayamobile.nativecamera;
 
 import java.io.File;
 import java.io.FileNotFoundException;
